@@ -15,24 +15,29 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies & Clone PVSnesLib
+      - name: Install Dependencies & PVSnesLib Natural ZIP
         run: |
           sudo apt-get update
-          sudo apt-get install -y make build-essential git ca-certificates
+          sudo apt-get install -y make wget curl unzip build-essential ca-certificates
           
-          # Doğrudan resmi repoyu /opt/pvsneslib altına klonla
-          echo "PVSnesLib reposu klonlanıyor..."
-          sudo git clone --depth 1 https://github.com/alekmaul/pvsneslib.git /opt/pvsneslib
+          echo "PVSnesLib v4.6.0 Linux ZIP sürümü indiriliyor..."
+          curl -L -s https://github.com/alekmaul/pvsneslib/releases/download/4.6.0/pvsneslib_460_64b_linux_release.zip -o /tmp/pvsneslib.zip
           
-          # Kök dizin sembolik bağlarını garantiye al
+          sudo mkdir -p /opt/pvsneslib
+          sudo unzip -q /tmp/pvsneslib.zip -d /opt/pvsneslib
+          
+          # Doğal iç içe pvsneslib klasör yapısını kök bağlar ile eşle
           sudo rm -rf /pvsneslib /devkitsnes
-          sudo ln -sfn /opt/pvsneslib /pvsneslib
-          sudo ln -sfn /opt/pvsneslib/devkitsnes /devkitsnes
+          sudo ln -sfn /opt/pvsneslib/pvsneslib /pvsneslib
+          sudo ln -sfn /opt/pvsneslib/pvsneslib/devkitsnes /devkitsnes
           
-          # Çevresel değişkenleri tanımla
-          echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
-          echo "DEVKITSNES=/opt/pvsneslib/devkitsnes" >> $GITHUB_ENV
-          echo "PATH=$PATH:/opt/pvsneslib/devkitsnes/bin" >> $GITHUB_ENV
+          echo "--- Doğrulama ---"
+          ls -la /opt/pvsneslib/pvsneslib
+          
+          # Çevresel değişkenleri doğal yola göre tanımla
+          echo "PVSNESLIB=/opt/pvsneslib/pvsneslib" >> $GITHUB_ENV
+          echo "DEVKITSNES=/opt/pvsneslib/pvsneslib/devkitsnes" >> $GITHUB_ENV
+          echo "PATH=$PATH:/opt/pvsneslib/pvsneslib/devkitsnes/bin" >> $GITHUB_ENV
 
       - name: Build All Platform Variants
         run: |
