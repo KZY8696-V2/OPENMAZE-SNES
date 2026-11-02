@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies & Extract to /opt
+      - name: Install Dependencies & Setup Cleanly Separated SDKs
         run: |
           sudo apt-get update
           sudo apt-get install -y make wget curl unzip build-essential ca-certificates
@@ -23,21 +23,46 @@ jobs:
           echo "PVSnesLib v4.6.0 Linux ZIP sürümü indiriliyor..."
           curl -L -s https://github.com/alekmaul/pvsneslib/releases/download/4.6.0/pvsneslib_460_64b_linux_release.zip -o /tmp/pvsneslib.zip
           
-          # Doğrudan /opt dizininin içine çıkart
-          sudo unzip -q /tmp/pvsneslib.zip -d /opt
+          sudo mkdir -p /tmp/extracted_pvs
+          sudo unzip -q /tmp/pvsneslib.zip -d /tmp/extracted_pvs
           
-          # Kök dizin bağlarını arşivin doğal yapısına (/opt/pvsneslib/pvsneslib) göre kur
-          sudo rm -rf /pvsneslib /devkitsnes
-          sudo ln -sfn /opt/pvsneslib/pvsneslib /pvsneslib
-          sudo ln -sfn /opt/pvsneslib/pvsneslib/devkitsnes /devkitsnes
+          # Hedef dizinleri sıfırdan oluştur
+          sudo rm -rf /opt/devkitsnes /opt/pvsneslib /devkitsnes /pvsneslib
+          sudo mkdir -p /opt/devkitsnes /opt/pvsneslib
           
-          echo "--- Doğrulama: /opt/pvsneslib/pvsneslib içeriği ---"
-          ls -la /opt/pvsneslib/pvsneslib
+          # Arşivin içinden devkitsnes ve include klasörlerini dinamik olarak bul ve yerleştir
+          DEVKIT_SRC=$(find /tmp/extracted_pvs -type d -name "devkitsnes" | head -n 1)
+          if [ -n "$DEVKIT_SRC" ]; then
+            sudo cp -r "$DEVKIT_SRC"/* /opt/devkitsnes/
+          fi
           
-          # Çevresel değişkenleri tanımla
-          echo "PVSNESLIB=/opt/pvsneslib/pvsneslib" >> $GITHUB_ENV
-          echo "DEVKITSNES=/opt/pvsneslib/pvsneslib/devkitsnes" >> $GITHUB_ENV
-          echo "PATH=$PATH:/opt/pvsneslib/pvsneslib/devkitsnes/bin" >> $GITHUB_ENV
+          PVS_ROOT=$(dirname "$DEVKIT_SRC")
+          if [ -d "$PVS_ROOT/include" ]; then
+            sudo cp -r "$PVS_ROOT/include" /opt/pvsneslib/
+          elif [ -d "$DEVKIT_SRC/include" ]; then
+            sudo cp -r "$DEVKIT_SRC/include" /opt/pvsneslib/
+          fi
+          
+          if [ -d "$PVS_ROOT/lib" ]; then
+            sudo cp -r "$PVS_ROOT/lib" /opt/pvsneslib/
+          elif [ -d "$DEVKIT_SRC/lib" ]; then
+            sudo cp -r "$DEVKIT_SRC/lib" /opt/pvsneslib/
+          fi
+          
+          # Kök dizin sembolik bağlarını kesin olarak kur
+          sudo ln -sfn /opt/devkitsnes /devkitsnes
+          sudo ln -sfn /opt/pvsneslib /pvsneslib
+          
+          echo "--- Kurulum Doğrulaması ---"
+          ls -la /opt/devkitsnes
+          ls -la /opt/devkitsnes/bin
+          ls -la /opt/devkitsnes/include
+          ls -la /opt/pvsneslib
+          
+          # Çevresel değişkenleri net yollarına göre tanımla
+          echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
+          echo "DEVKITSNES=/opt/devkitsnes" >> $GITHUB_ENV
+          echo "PATH=$PATH:/opt/devkitsnes/bin" >> $GITHUB_ENV
 
       - name: Build All Platform Variants
         run: |
