@@ -26,7 +26,13 @@ jobs:
           
           # /opt/pvsneslib dizinine aç
           sudo mkdir -p /opt/pvsneslib
-          sudo unzip -q /tmp/pvsneslib.zip -d /opt/pvsneslib
+          sudo unzip -q /tmp/pvsneslib.zip -d /tmp/extracted_pvs
+          
+          # Çıkan klasör yapısını bul ve /opt/pvsneslib altına düzgünce taşı
+          sudo cp -r /tmp/extracted_pvs/*/* /opt/pvsneslib/ || sudo cp -r /tmp/extracted_pvs/* /opt/pvsneslib/
+          
+          # Doğrulama: snes_rules dosyasının yerinde olup olmadığını kontrol et
+          ls -la /opt/pvsneslib/devkitsnes/
           
           # Çevresel değişkeni tanımla
           echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
