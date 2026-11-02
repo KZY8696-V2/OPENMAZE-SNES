@@ -18,14 +18,15 @@ jobs:
       - name: Install Dependencies & PVSnesLib
         run: |
           sudo apt-get update
-          sudo apt-get install -y make git wget build-essential ca-certificates
+          sudo apt-get install -y make wget curl build-essential ca-certificates
           
-          # PVSnesLib'i önce geçici klasöre klonla (Kimlik doğrulama takılmasını önler)
-          git clone --depth 1 https://github.com/easymode/pvsneslib.git /tmp/pvsneslib || git clone --depth 1 https://github.com/araenas/pvsneslib.git /tmp/pvsneslib
+          # PVSnesLib deposunu zip/tarball olarak doğrudan indir (Git clone hatasını tamamen önler)
+          echo "PVSnesLib indiriliyor..."
+          curl -L https://github.com/easymode/pvsneslib/archive/refs/heads/master.tar.gz -o /tmp/pvsneslib.tar.gz
           
-          # /opt dizinine taşı ve izinleri ayarla
+          # /opt/pvsneslib dizinine aç
           sudo mkdir -p /opt/pvsneslib
-          sudo cp -r /tmp/pvsneslib/* /opt/pvsneslib/
+          sudo tar -xzf /tmp/pvsneslib.tar.gz -C /opt/pvsneslib --strip-components=1
           
           # Çevresel değişkeni tanımla
           echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
