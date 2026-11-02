@@ -1,0 +1,37 @@
+name: Build Multi-Platform SNES/BS-X/Sufami ROMs
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    name: Compile in Docker & Package ROMs
+    runs-on: ubuntu-latest
+    
+    # Doğrudan PVSnesLib resmi Docker imajı üzerinde çalışır
+    container:
+      image: pvsneslib/pvsneslib:latest
+
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      - name: Build All Platform Variants inside Docker
+        run: |
+          echo "Docker ortamında derleme başlatılıyor..."
+          make clean
+          make
+
+      - name: Upload All ROM Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: snes-multisystem-roms-package
+          path: |
+            *_snes.sfc
+            *_superfamicom.smc
+            *_bsx.bsx
+            *_sufamiturbo.sft
+            *.sfc
