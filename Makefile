@@ -1,22 +1,22 @@
-# --- SNES / BS-X / Sufami Turbo Birleştirilmiş Makefile ---
-target = snes_maze
+# --- SNES / BS-X / Sufami Turbo Makefile ---
+ROMNAME = snes_maze
 
-# PVSnesLib Konumu (Docker konteyneri içi veya sistem yolu)
+# PVSnesLib Konumu (Ubuntu runner üzerinde ayarlı)
 PVSNESLIB ?= /opt/pvsneslib
 
 include $(PVSNESLIB)/devkitsnes/snes_rules
 
 # Varsayılan olarak ana ROM'u derle ve tüm platform uzantılarına kopyala
-all: $(target).sfc
+all: $(ROMNAME).sfc
 	@echo "Tüm hedef platformlar için ROM uzantıları oluşturuluyor..."
-	@cp $(target).sfc $(target)_snes.sfc
-	@cp $(target).sfc $(target)_superfamicom.smc
-	@cp $(target).sfc $(target)_bsx.bsx
-	@cp $(target).sfc $(target)_sufamiturbo.sft
+	@cp $(ROMNAME).sfc $(ROMNAME)_snes.sfc
+	@cp $(ROMNAME).sfc $(ROMNAME)_superfamicom.smc
+	@cp $(ROMNAME).sfc $(ROMNAME)_bsx.bsx
+	@cp $(ROMNAME).sfc $(ROMNAME)_sufamiturbo.sft
 	@echo "Tüm platform ROM'ları başarıyla hazırlandı!"
 
-# Klasik ve kararlı PVSnesLib bağlama kuralı
-$(target).sfc: $(target).o
+# PVSnesLib standart bağlama kuralı
+$(ROMNAME).sfc: $(ROMNAME).o
 	$(LD) -o $@ $(LDFLAGS) $^
 
 # Temizleme Kuralı
