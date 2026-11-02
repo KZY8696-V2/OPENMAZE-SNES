@@ -15,28 +15,42 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies & PVSnesLib Natural ZIP
+      - name: Install Dependencies & Setup PVSnesLib
         run: |
           sudo apt-get update
           sudo apt-get install -y make wget curl unzip build-essential ca-certificates
           
           echo "PVSnesLib v4.6.0 Linux ZIP sürümü indiriliyor..."
           curl -L -s https://github.com/alekmaul/pvsneslib/releases/download/4.6.0/pvsneslib_460_64b_linux_release.zip -o /tmp/pvsneslib.zip
-        
-          sudo unzip -q /tmp/pvsneslib.zip -d /opt
           
-          # Doğal iç içe pvsneslib klasör yapısını kök bağlar ile eşle
+          sudo unzip -q /tmp/pvsneslib.zip -d /tmp/extracted_pvs
+          
+          # devkitsnes klasörünü arşiv içinde nerede olursa olsun dinamik olarak bul
+          DEVKIT_SRC=$(find /tmp/extracted_pvs -type d -name "devkitsnes" | head -n 1)
+          if [ -z "$DEVKIT_SRC" ]; then
+            echo "HATA: devkitsnes klasörü arşivde bulunamadı!"
+            exit 1
+          fi
+          
+          PVS_SRC=$(dirname "$DEVKIT_SRC")
+          echo "Bulunan PVSnesLib kaynak kökü: $PVS_SRC"
+          
+          # İçeriği tertemiz bir şekilde /opt/pvsneslib altına taşı
+          sudo rm -rf /opt/pvsneslib/*
+          sudo cp -r "$PVS_SRC"/* /opt/pvsneslib/
+          
+          # Kök sembolik bağları kesin olarak kur
           sudo rm -rf /pvsneslib /devkitsnes
-          sudo ln -sfn /opt/pvsneslib/pvsneslib /pvsneslib
-          sudo ln -sfn /opt/pvsneslib/pvsneslib/devkitsnes /devkitsnes
+          sudo ln -sfn /opt/pvsneslib /pvsneslib
+          sudo ln -sfn /opt/pvsneslib/devkitsnes /devkitsnes
           
-          echo "--- Doğrulama ---"
-          ls -la /opt/pvsneslib/pvsneslib
+          echo "--- Doğrulama: /opt/pvsneslib içeriği ---"
+          ls -la /opt/pvsneslib
           
-          # Çevresel değişkenleri doğal yola göre tanımla
-          echo "PVSNESLIB=/opt/pvsneslib/pvsneslib" >> $GITHUB_ENV
-          echo "DEVKITSNES=/opt/pvsneslib/pvsneslib/devkitsnes" >> $GITHUB_ENV
-          echo "PATH=$PATH:/opt/pvsneslib/pvsneslib/devkitsnes/bin" >> $GITHUB_ENV
+          # Çevresel değişkenleri tanımla
+          echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
+          echo "DEVKITSNES=/opt/pvsneslib/devkitsnes" >> $GITHUB_ENV
+          echo "PATH=$PATH:/opt/pvsneslib/devkitsnes/bin" >> $GITHUB_ENV
 
       - name: Build All Platform Variants
         run: |
