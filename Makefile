@@ -1,21 +1,13 @@
 # --- SNES / BS-X / Sufami Turbo Makefile ---
 ROMNAME = snes_maze
 
-# PVSnesLib tek katmanlı standart yol tanımı
+# Ayrı ayrı konumlandırılmış kararlı yollar
 export PVSNESLIB = /opt/pvsneslib
-export DEVKITSNES = $(PVSNESLIB)/devkitsnes
+export DEVKITSNES = /opt/devkitsnes
 
 CFILES = $(ROMNAME).c
 
-# Kök bağlantıların varlığını garantiye al
-ifeq ($(wildcard /pvsneslib),)
-$(shell sudo ln -sfn $(PVSNESLIB) /pvsneslib)
-endif
-ifeq ($(wildcard /devkitsnes),)
-$(shell sudo ln -sfn $(DEVKITSNES) /devkitsnes)
-endif
-
-# PVSnesLib kurallarını dahil et
+# PVSnesLib derleme kurallarını dahil et
 include $(DEVKITSNES)/snes_rules
 
 # Hedefler (NOT: Komut satırlarının başında mutlaka TAB olmalıdır)
