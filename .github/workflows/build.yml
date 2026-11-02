@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-            - name: Install Dependencies & PVSnesLib
+      - name: Install Dependencies & PVSnesLib
         run: |
           sudo apt-get update
           sudo apt-get install -y make wget curl unzip build-essential ca-certificates
