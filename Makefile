@@ -7,25 +7,16 @@ export DEVKITSNES = $(PVSNESLIB)/devkitsnes
 
 CFILES = $(ROMNAME).c
 
-# Derleyicinin arayacağı başlık (include) ve kütüphane (lib) yolları
-export INCLUDE := $(DEVKITSNES)/include:$(PVSNESLIB)/include
-export LIB := $(DEVKITSNES)/lib:$(PVSNESLIB)/lib
-
-# Ekstra include bayraklarını derleyiciye doğrudan bildir
-export CFLAGS := -I$(DEVKITSNES)/include -I$(PVSNESLIB)/include
-
-# Derleme öncesi /devkitsnes ve /pvsneslib kök linklerini garantiye al
-ifeq ($(wildcard /devkitsnes),)
-$(shell sudo ln -sfn $(DEVKITSNES) /devkitsnes)
-endif
-ifeq ($(wildcard /pvsneslib),)
+# Derleme öncesi kök dizindeki /pvsneslib ve /devkitsnes bağlantılarını kesin olarak oluştur
+# Bu sayede 816-tcc derleyicisi /pvsneslib/include yolunu bulabilecektir.
+$(shell sudo rm -rf /pvsneslib /devkitsnes)
 $(shell sudo ln -sfn $(PVSNESLIB) /pvsneslib)
-endif
+$(shell sudo ln -sfn $(DEVKITSNES) /devkitsnes)
 
-# PVSnesLib kurallarını dahil et
+# PVSnesLib standart derleme kurallarını dahil et
 include $(DEVKITSNES)/snes_rules
 
-# Hedefler (NOT: Komut satırlarının başında mutlaka TAB tuşu olmalıdır)
+# Hedefler (Not: Satır başlarında mutlaka TAB olmalıdır)
 all: $(ROMNAME).sfc
 	@echo "Tüm hedef platformlar için ROM uzantıları oluşturuluyor..."
 	@cp $(ROMNAME).sfc $(ROMNAME)_snes.sfc
