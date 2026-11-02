@@ -20,8 +20,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y make git wget build-essential ca-certificates
           
-          # PVSnesLib deposunu ve derleyicilerini sisteme klonla
-          git clone --depth 1 https://github.com/easymode/pvsneslib.git /opt/pvsneslib || git clone --depth 1 https://github.com/araenas/pvsneslib.git /opt/pvsneslib
+          # PVSnesLib'i önce geçici klasöre klonla (Kimlik doğrulama takılmasını önler)
+          git clone --depth 1 https://github.com/easymode/pvsneslib.git /tmp/pvsneslib || git clone --depth 1 https://github.com/araenas/pvsneslib.git /tmp/pvsneslib
+          
+          # /opt dizinine taşı ve izinleri ayarla
+          sudo mkdir -p /opt/pvsneslib
+          sudo cp -r /tmp/pvsneslib/* /opt/pvsneslib/
           
           # Çevresel değişkeni tanımla
           echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
