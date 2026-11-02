@@ -1,13 +1,13 @@
 # --- SNES / BS-X / Sufami Turbo Makefile ---
 ROMNAME = snes_maze
 
-# PVSnesLib Kök Yolu
-export PVSNESLIB = /opt/pvsneslib
+# PVSnesLib doğal iç içe yol tanımı
+export PVSNESLIB = /opt/pvsneslib/pvsneslib
 export DEVKITSNES = $(PVSNESLIB)/devkitsnes
 
 CFILES = $(ROMNAME).c
 
-# Kök bağlantıların varlığını garantiye al
+# Kök bağların varlığını garantiye al
 ifeq ($(wildcard /pvsneslib),)
 $(shell sudo ln -sfn $(PVSNESLIB) /pvsneslib)
 endif
