@@ -15,27 +15,33 @@ jobs:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Install Dependencies & PVSnesLib
+            - name: Install Dependencies & PVSnesLib
         run: |
           sudo apt-get update
           sudo apt-get install -y make wget curl unzip build-essential ca-certificates
           
-          # Resmi PVSnesLib 4.6.0 Linux Release zip dosyasını indir
           echo "PVSnesLib v4.6.0 Linux sürümü indiriliyor..."
           curl -L -s https://github.com/alekmaul/pvsneslib/releases/download/4.6.0/pvsneslib_460_64b_linux_release.zip -o /tmp/pvsneslib.zip
           
-          # /opt/pvsneslib dizinine aç
           sudo mkdir -p /opt/pvsneslib
           sudo unzip -q /tmp/pvsneslib.zip -d /tmp/extracted_pvs
           
-          # Çıkan klasör yapısını bul ve /opt/pvsneslib altına düzgünce taşı
-          sudo cp -r /tmp/extracted_pvs/*/* /opt/pvsneslib/ || sudo cp -r /tmp/extracted_pvs/* /opt/pvsneslib/
+          # İç içe açılan pvsneslib klasörlerini /opt/pvsneslib altına düzgünce hizala
+          if [ -d "/tmp/extracted_pvs/pvsneslib" ]; then
+            sudo cp -r /tmp/extracted_pvs/pvsneslib/* /opt/pvsneslib/
+          else
+            sudo cp -r /tmp/extracted_pvs/* /opt/pvsneslib/
+          fi
           
-          # Doğrulama: snes_rules dosyasının yerinde olup olmadığını kontrol et
-          ls -la /opt/pvsneslib/devkitsnes/
+          # /pvsneslib ve /devkitsnes kök bağlantılarını kesin olarak kur
+          sudo rm -rf /pvsneslib /devkitsnes
+          sudo ln -sfn /opt/pvsneslib /pvsneslib
+          sudo ln -sfn /opt/pvsneslib/devkitsnes /devkitsnes
           
-          # Çevresel değişkeni tanımla
+          # Çevresel değişkenleri tanımla
           echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
+          echo "DEVKITSNES=/opt/pvsneslib/devkitsnes" >> $GITHUB_ENV
+          echo "PATH=$PATH:/opt/pvsneslib/devkitsnes/bin" >> $GITHUB_ENV
 
       - name: Build All Platform Variants
         run: |
