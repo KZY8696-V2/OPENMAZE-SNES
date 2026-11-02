@@ -11,9 +11,9 @@ jobs:
     name: Compile in Docker & Package ROMs
     runs-on: ubuntu-latest
     
-    # Doğrudan PVSnesLib resmi Docker imajı üzerinde çalışır
+    # Doğru ve aktif topluluk PVSnesLib Docker imajı kullanılıyor
     container:
-      image: pvsneslib/pvsneslib:latest
+      image: bensuperpc/pvsneslib:latest
 
     steps:
       - name: Checkout Repository Code
