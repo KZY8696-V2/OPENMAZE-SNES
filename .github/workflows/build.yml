@@ -8,20 +8,26 @@ on:
 
 jobs:
   build:
-    name: Compile in Docker & Package ROMs
+    name: Compile on Ubuntu & Package ROMs
     runs-on: ubuntu-latest
-    
-    # Doğru ve aktif topluluk PVSnesLib Docker imajı kullanılıyor
-    container:
-      image: bensuperpc/pvsneslib:latest
 
     steps:
       - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Build All Platform Variants inside Docker
+      - name: Install Dependencies & PVSnesLib
         run: |
-          echo "Docker ortamında derleme başlatılıyor..."
+          sudo apt-get update
+          sudo apt-get install -y make git wget build-essential ca-certificates
+          
+          # PVSnesLib deposunu ve derleyicilerini sisteme klonla
+          git clone --depth 1 https://github.com/easymode/pvsneslib.git /opt/pvsneslib || git clone --depth 1 https://github.com/araenas/pvsneslib.git /opt/pvsneslib
+          
+          # Çevresel değişkeni tanımla
+          echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
+
+      - name: Build All Platform Variants
+        run: |
           make clean
           make
 
