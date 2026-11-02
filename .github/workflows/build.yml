@@ -26,17 +26,29 @@ jobs:
           sudo mkdir -p /opt/pvsneslib
           sudo unzip -q /tmp/pvsneslib.zip -d /tmp/extracted_pvs
           
-          # İç içe açılan pvsneslib klasörlerini /opt/pvsneslib altına düzgünce hizala
+          # Dosyaların yapısını görmek için listele
+          echo "--- Arşivden Çıkan Dosyalar ---"
+          find /tmp/extracted_pvs -maxdepth 3
+          
+          # İç içe veya düz yerleşimi garantilemek için ana içeriği kopyala
           if [ -d "/tmp/extracted_pvs/pvsneslib" ]; then
             sudo cp -r /tmp/extracted_pvs/pvsneslib/* /opt/pvsneslib/
           else
             sudo cp -r /tmp/extracted_pvs/* /opt/pvsneslib/
           fi
           
+          # Eğer devkitsnes ve include alt klasörleri farklı yerdeyse düzelt
+          if [ ! -d "/opt/pvsneslib/include" ] && [ -d "/opt/pvsneslib/devkitsnes/include" ]; then
+            sudo ln -sfn /opt/pvsneslib/devkitsnes/include /opt/pvsneslib/include
+          fi
+
           # /pvsneslib ve /devkitsnes kök bağlantılarını kesin olarak kur
           sudo rm -rf /pvsneslib /devkitsnes
           sudo ln -sfn /opt/pvsneslib /pvsneslib
           sudo ln -sfn /opt/pvsneslib/devkitsnes /devkitsnes
+          
+          echo "--- /opt/pvsneslib İçeriği ---"
+          ls -la /opt/pvsneslib
           
           # Çevresel değişkenleri tanımla
           echo "PVSNESLIB=/opt/pvsneslib" >> $GITHUB_ENV
