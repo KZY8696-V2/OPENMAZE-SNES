@@ -26,7 +26,7 @@ jobs:
           sudo unzip -q /tmp/pvsneslib.zip -d /opt
           
           # devkitsnes klasörünü arşiv içinde nerede olursa olsun dinamik olarak bul
-          DEVKIT_SRC=$(find /tmp/extracted_pvs -type d -name "devkitsnes" | head -n 1)
+          DEVKIT_SRC=$(find /opt/pvsneslib -type d -name "devkitsnes" | head -n 1)
           if [ -z "$DEVKIT_SRC" ]; then
             echo "HATA: devkitsnes klasörü arşivde bulunamadı!"
             exit 1
