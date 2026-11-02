@@ -23,7 +23,7 @@ jobs:
           echo "PVSnesLib v4.6.0 Linux ZIP sürümü indiriliyor..."
           curl -L -s https://github.com/alekmaul/pvsneslib/releases/download/4.6.0/pvsneslib_460_64b_linux_release.zip -o /tmp/pvsneslib.zip
           
-          sudo unzip -q /tmp/pvsneslib.zip -d /tmp/extracted_pvs
+          sudo unzip -q /tmp/pvsneslib.zip -d /opt
           
           # devkitsnes klasörünü arşiv içinde nerede olursa olsun dinamik olarak bul
           DEVKIT_SRC=$(find /tmp/extracted_pvs -type d -name "devkitsnes" | head -n 1)
